@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 简单的viewPager自动滑动
-category: 技术
+category: 安卓
 tags: android
 ---
 
