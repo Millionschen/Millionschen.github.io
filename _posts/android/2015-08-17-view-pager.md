@@ -147,12 +147,15 @@ m_runnable的定义:
 			@Override
 			public boolean onTouch(View v, MotionEvent e) {
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
+
 					m_handler.removeCallbacks(m_runnable);
-				} else if (e.getAction() == MotionEvent.ACTION_UP ||
-						e.getAction() == MotionEvent.ACTION_OUTSIDE) {
+
+				} else if (e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_OUTSIDE) {
 					m_handler.postDelayed(m_runnable, SLIDE_INTERVAL);
-				}
+	    }
+                
 				return false;
-			}			
+			}
+            
 		});
 ```
