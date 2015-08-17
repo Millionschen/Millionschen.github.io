@@ -142,6 +142,7 @@ m_runnable的定义:
 
 ## 对点击图片的处理
 当按住图片时,停止了图片的运动.当手指离开时,重新开始移动图片
+
 ```
 		m_advViewPager.setOnTouchListener(new OnTouchListener() {
 			@Override
