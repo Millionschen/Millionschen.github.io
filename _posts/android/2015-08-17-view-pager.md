@@ -5,9 +5,9 @@ category: 安卓
 tags: android
 ---
 
-[TOC]
 ## viewPager子类的实现
 下面是一个viewPager子类的实现,主要是重写了onMeasure.
+
 ```
 public class MyViewPager extends ViewPager {
 
@@ -38,8 +38,10 @@ public class MyViewPager extends ViewPager {
     }
 }
 ```
+
 ## MyPageAdapter的实现
 主要重写了instantiateItem, getCount, isViewFromObject, destroyItem几个方法
+
 ```
 public class MyPagerAdapter extends PagerAdapter {
 		private List<ImageView> list;
@@ -69,9 +71,11 @@ public class MyPagerAdapter extends PagerAdapter {
 			container.removeView(list.get(position));
      	}
 
-	}
+}
 ```
+
 ## MyViewPagerScroller的实现
+
 ```
 public class MyViewPagerScroller extends Scroller {
 
@@ -114,6 +118,7 @@ public class MyViewPagerScroller extends Scroller {
 	}
 }
 ```
+
 ## 滑动的实现
 这里定义了一个延迟触发的事件
 ```
