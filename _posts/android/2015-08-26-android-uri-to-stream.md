@@ -5,9 +5,9 @@ category: 安卓
 tags: Essay
 ---
 
-android中ContentProvider经常可以提供一些资源的uri,那么如何从uri获取相应的stream并且读取内容呢?
-涉及的类有AssetFileDescriptor,Uri,FileDescriptor.
-过程如下:
+android中ContentProvider经常可以提供一些资源的uri,那么如何从uri获取相应的stream并且读取
+内容呢?
+涉及的类有AssetFileDescriptor,Uri,FileDescriptor,过程如下:
 
     ```
     AssetFileDescriptor afd = null;
