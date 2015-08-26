@@ -11,13 +11,14 @@ thumbnail. 但是在使用QuickContactBadge时,需要将其与联系人的相关
 实现了,需要继承cursorAdapter并重写其相关方法.
 
 ## 实现
-    继承cursorAdapter后必须重写以下方法:
-    `CursorAdapter.newView()`
-    `CursorAdapter.bindView()`
+
+继承cursorAdapter后必须重写以下方法:
+`CursorAdapter.newView()`
+`CursorAdapter.bindView()`
 
 ### newView的作用:
-    inflates一个新的view对象来承载listView等的每一项的layout.重写该方法后,就不用为每一项单独的去inflate
-    一个layout了.
+inflates一个新的view对象来承载listView等的每一项的layout.重写该方法后,就不用为每一项单独的去inflate
+一个layout了.
 
 ```
 @Override
@@ -154,7 +155,7 @@ public class ContactsFragment extends Fragment implements
 
 ### 设置listView
 
-我们将listView放在一个fragment中, 这个fragment需要实现LoaderManager.LoaderCallbacks<Cursor>接口
+我们将listView放在一个fragment中, 这个fragment需要实现`LoaderManager.LoaderCallbacks<Cursor>`接口
 设置listView分为以下几步
 1. 在fragment的onCreate中实例化adapter,获取listView的引用
 2. 在onActivityCreated中使用listView.setAdapter设置我们的adapter
