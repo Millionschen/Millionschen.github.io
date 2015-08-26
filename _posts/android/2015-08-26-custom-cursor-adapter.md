@@ -17,7 +17,8 @@ thumbnail. 但是在使用QuickContactBadge时,需要将其与联系人的相关
 
 ### newView的作用:
     inflates一个新的view对象来承载listView等的每一项的layout.重写该方法后,就不用为每一项单独的去inflate
-一个layout了.
+    一个layout了.
+
 ```
 @Override
 public View newView(
@@ -46,10 +47,11 @@ public View newView(
 
 ```
 
-    其中viewHold是使用adapter时的一个常用helper类,作用是用于装载layout里每个子view的引用.
+其中viewHold是使用adapter时的一个常用helper类,作用是用于装载layout里每个子view的引用.
 
 ### CursorAdapter.bindView()的作用
-    这个方法的作用是将cursor中的data放置到每一项的layout包含的view中去
+这个方法的作用是将cursor中的data放置到每一项的layout包含的view中去
+
 ```
 @Override
         public void bindView(
@@ -90,7 +92,8 @@ public View newView(
 
 
 ### 查询数据的准备
-    为了查询数据,还需要做一些准备工作,比如为设置查询哪些项 每一项分别是第几列
+
+为了查询数据,还需要做一些准备工作,比如为设置查询哪些项 每一项分别是第几列
 
 ```
 public class ContactsFragment extends Fragment implements
@@ -147,7 +150,6 @@ public class ContactsFragment extends Fragment implements
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
             3 :
             0;
-
 ```
 
 ### 设置listView
