@@ -13,6 +13,7 @@ thumbnail. 但是在使用QuickContactBadge时,需要将其与联系人的相关
 ## 实现
 
 继承cursorAdapter后必须重写以下方法:
+
 `CursorAdapter.newView()`
 `CursorAdapter.bindView()`
 
