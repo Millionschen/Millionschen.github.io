@@ -67,14 +67,11 @@ tags: android
 
 ### 自定义overflow button 图标
 我们为主题添加了一项style: `android:actionOverflowButtonStyle`,这个style指定了图片的src为一个drawble
-```
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">
 
-        <!-- API 14 theme customizations can go here. -->
+    <style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">
         <item name="android:actionOverflowButtonStyle">@style/weixinActionOverflowButtonStyle</item>
     </style>
 
     <style name="weixinActionOverflowButtonStyle">
         <item name="android:src">@drawable/actionbar_add_icon</item>
     </style>
-```
