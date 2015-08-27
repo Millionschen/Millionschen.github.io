@@ -118,8 +118,8 @@ tags: Essay
 以上几个是为了画文字设置的 Rect是为了限定文字的边框,mTextPaint是在canvas上写出文字用的,设置了大小颜色以及边界等属性.
 
 其中getTextBounds方法为:
-```
- public void getTextBounds (char[] text, int index, int count, Rect bounds)
+
+public void getTextBounds (char[] text, int index, int count, Rect bounds)
 
 Return in bounds (allocated by the caller) the smallest rectangle that encloses all of the characters, with an implied origin at (0,0).
 Parameters
@@ -127,7 +127,6 @@ text 	Array of chars to measure and return their unioned bounds
 index 	Index of the first char in the array to measure
 count 	The number of chars, beginning at index, to measure
 bounds 	Returns the unioned bounds of all the text. Must be allocated by the caller.
-```
 
 ### 4.重写onMeasure
 onMeasure主要是为了计算onDraw时需要用的一些尺寸
@@ -280,5 +279,5 @@ onDraw的主要在于xfermode
 	}
 ```
 注意这里我们先把父类保存的参数先都存起来,再存自己的参数(mAlpha)
-然后恢复时判断state是不是bundle,取出自己的数据再调用父类的函数恢复父类的数据
+然后恢复时判断state是不是bundle,取出自己的数据再调用父类的函数恢复父类的数据getTextBoundsgetTextBoundsgetTextBounds
 
