@@ -8,7 +8,9 @@ tags: android
 ## 场景
 
 安卓3.0之前,很多设备都没有永久menu键,所以action bar上需要一个overflow键.之后有了这个key,就默认不显示action bar的overflow了.为了使overflow常驻,我们可以使用反射的方法设置这个属性的值.
+
 ### 设置常驻
+
 与这个值有关的类是`ViewConfiguration`,属性名为:sHasPermanentMenuKey
 
 因为不能直接设置,所以:
