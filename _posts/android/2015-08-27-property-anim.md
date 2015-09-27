@@ -315,3 +315,94 @@ public class ShapeHolder {
 观察上面的代码 发现这里设置了一个动画，不停的改变背景颜色，这个背景颜色改变的时候就会调用invalidate了。
 
 还有一个问题，`evaluator`是什么？这个是一个在动画过程中计算对应属性值的东西，当属性是int和float时会自动生成一个，当属性不是int或float以及需要对属性的改变情况自定义时就需要自己去设置了，这里为了改变颜色设置了一个ArgbEvaluator.
+
+
+##新增的一些属性动画
+`ObjectAnimator.ofFloat(myView, "rotation", 0f, 360f)`可以改变一个view的2d转向，相关的还有：
+
+```
+translationX and translationY: These properties control where the View is located as a delta from its left and top coordinates which are set by its layout container.
+
+rotation, rotationX, and rotationY: These properties control the rotation in 2D (rotation property) and 3D around the pivot point.
+scaleX and scaleY: These properties control the 2D scaling of a View around its pivot point.
+
+pivotX and pivotY: These properties control the location of the pivot point, around which the rotation and scaling transforms occur. By default, the pivot point is located at the center of the object.
+
+x and y: These are simple utility properties to describe the final location of the View in its container, as a sum of the left and top values and translationX and translationY values.
+alpha: Represents the alpha transparency on the View. This value is 1 (opaque) by default, with a value of 0 representing full transparency (not visible).
+```
+
+####可以这样
+
+```
+ObjectAnimator animX = ObjectAnimator.ofFloat(myView, "x", 50f);
+ObjectAnimator animY = ObjectAnimator.ofFloat(myView, "y", 100f);
+AnimatorSet animSetXY = new AnimatorSet();
+animSetXY.playTogether(animX, animY);
+animSetXY.start();
+```
+
+####还可以这样
+
+```
+PropertyValuesHolder pvhX =
+ PropertyValuesHolder.ofFloat("x", 50f);
+PropertyValuesHolder pvhY =
+ PropertyValuesHolder.ofFloat("y", 100f);
+ObjectAnimator.
+ofPropertyValuesHolder(myView, pvhX, pvyY).start();
+```
+
+####以及这样
+
+```
+myView.animate().x(50f).y(100f);
+```
+
+
+## xml中定义
+
+在res下定义animator.xml可以定义一下动画
+
+set 对应 xml 的 AnimatorSet
+
+ObjectAnimator 对应 xml 的 ObjectAnimator
+
+ValueAnimator 对应 xml 的 animator
+
+
+```
+<set android:ordering="sequentially">
+    <set>
+        <objectAnimator
+            android:propertyName="x"
+            android:duration="500"
+            android:valueTo="400"
+            android:valueType="intType"/>
+        <objectAnimator
+            android:propertyName="y"
+            android:duration="500"
+            android:valueTo="300"
+            android:valueType="intType"/>
+    </set>
+    <objectAnimator
+        android:propertyName="alpha"
+        android:duration="500"
+        android:valueTo="1f"/>
+</set>
+```
+
+如上的xml 外层的定义了ordering为sequentially，则第一个和第二个会相继发生，而内层的set中的两个则会同时发生
+为了使用该xml文件，则：
+
+```
+AnimatorSet set = (AnimatorSet) AnimatorInflater.loadAnimator(myContext,
+    R.anim.property_animator);
+set.setTarget(myObject);
+set.start();
+```
+
+
+
+
+
