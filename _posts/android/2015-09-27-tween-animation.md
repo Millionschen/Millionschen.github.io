@@ -44,9 +44,23 @@ set android:shareInterpolator="false">
 </set>
 ```
 
-注意对pivotX、pivotY的值，当
+注意对pivotX、pivotY的值，当为50时表明对于其parent的50%，为50%时表面枢轴是对于自己的50%。
 
+另外，默认所有动作都是同事进行的，如果希望分开进行，需要设置startOffset
 
+**常见**使用方法为：
 
+```java
+ImageView spaceshipImage = (ImageView) 
+findViewById(R.id.spaceshipImage);
+
+Animation hyperspaceJumpAnimation = 
+    AnimationUtils.loadAnimation(this, 
+    R.anim.hyperspace_jump);
+
+spaceshipImage.startAnimation(hyperspaceJumpAnimation);
+```
+
+除了`startAnimation`外，还有`Animation.setStartTime()`,之后再使用`View.setAnimation()`,以及在一些地方用于`setAnimationStyle`
 
 
