@@ -59,7 +59,6 @@ tags: android
             android:textColor="@android:color/white"
             android:textSize="24sp" />
     </RelativeLayout>
-
 </android.support.v4.widget.DrawerLayout>
  ```
  
