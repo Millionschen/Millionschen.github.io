@@ -23,6 +23,7 @@ tags: android
 
  下面这个抽屉布局引用的是android.support.v4.DrawerLayout，类似于LineaLayout、RelativeLayout等布局一样定义，在DrawerLayout内部再定义3个布局，分别是管理主界面的FrameLayout，此布局用来展示界面切换的Fragment，下面是ListView，用来展示菜单列表，最后是一个RelativeLayout，用来展示右边的布局，布局代码如下:
  
+ 
  ```
  <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/drawerlayout"
@@ -60,7 +61,9 @@ tags: android
             android:textSize="24sp" />
     </RelativeLayout>
 </android.support.v4.widget.DrawerLayout>
+
  ```
+
  
  这个布局文件示范了一些重要的布局特征:
  
@@ -74,6 +77,7 @@ tags: android
  
  首先初始化这个抽屉列表，并且为这个列表适配上数据，数据适配器使用的是最简单的ArrayAdapter，模拟数据被简单的定义在res/values/strings.xml里，如下：
  
+ 
  ```
  <string-array name="menu_array">  
        <item>Menu 1</item>  
@@ -83,12 +87,13 @@ tags: android
 </string-array>  
  ```
  
+ 
  然后初始化左侧的抽屉列表：
+ 
  
  ```
 mMenuTitles = getResources().getStringArray(R.array.menu_array);
-ArrayAdapter<String> adapter = new
-        ArrayAdapter<String>(DemoApplication.getInstance(),
+ArrayAdapter<String> adapter = new ArrayAdapter<String>(DemoApplication.getInstance(),
                 android.R.layout.simple_list_item_1,
                 android.R.id.text1,
                 mMenuTitles);
@@ -107,6 +112,7 @@ mLeftDrawer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 selectItem(position);
             }
         });
+        
  ```
 
 其中selectItem主要做了两件事:更新FragmentLayout以及设置被点选的item为select然后关闭抽屉列表
