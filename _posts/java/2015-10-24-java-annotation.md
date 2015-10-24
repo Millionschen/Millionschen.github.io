@@ -149,7 +149,7 @@ package com.company;
 
 
 //调用注解并赋值
-@MyAnnotation(metaAnnotation=@MetaAnnotation(birthday = "我的出身日期为1988-2-18"),color="red", array={23, 26})
+@MyAnnotation(metaAnnotation=@MetaAnnotation(birthday = "我的出身日期为1989-08-17"),color="red", array={23, 26})
 public class Main {
 
     public static void main(String[] args) {
@@ -192,5 +192,5 @@ red
 性别为：MAN
 中文名男人
 value为1
-我的出身日期为1988-2-18
+我的出身日期为1989-08-17
 ```
