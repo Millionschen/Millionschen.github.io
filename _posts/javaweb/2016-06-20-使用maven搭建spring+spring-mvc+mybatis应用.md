@@ -1,32 +1,32 @@
 ---
 layout: post
-title: mysql安装错误解决办法
+title: 使用maven搭建spring+spring-mvc+mybatis应用
 category: javaweb
 tags: Essay
 ---
 
 
-#1 基本概念
+# 1 基本概念
 
-##1.1 spring
+## 1.1 spring
 
 Spring是一个分层的JavaSE/EE full-stack轻量级开源框架。它是为了解决企业应用开发的复杂性而创建的。Spring使用基本的JavaBean来完成以前只可能由EJB完成的事情。然而，Spring的用途不仅限于服务器端的开发。从简单性、可测试性和松耦合的角度而言，任何Java应用都可以从Spring中受益。 简单来说，Spring是一个轻量级的控制反转（IoC）和面向切面（AOP）的容器框架。
 
-##1.2 spring-mvc
+## 1.2 spring-mvc
 
 Spring MVC属于SpringFrameWork的后续产品，已经融合在Spring Web Flow里面。Spring MVC 分离了控制器、模型对象、分派器以及处理程序对象，这种分离让它们更容易进行定制。
 
-##1.3 mybatis
+## 1.3 mybatis
 
 mybatis是一个轻量级的持久层框架， 包括SQL Maps和Data Access Objects（DAO）MyBatis 消除了几乎所有的JDBC代码和参数的手工设置以及结果集的检索。MyBatis 使用简单的 XML或注解用于配置和原始映射，将接口和 Java 的POJOs（Plain Old Java Objects，普通的 Java对象）映射成数据库中的记录。
 
-##1.4 maven
+## 1.4 maven
 
 Maven项目对象模型(POM)，可以通过一小段描述信息来管理项目的构建，报告和文档的软件项目管理工具。
 
-#2 搭建框架
+# 2 搭建框架
 
-##2.1 引入相关jar包
+## 2.1 引入相关jar包
 
 使用maven可以导入并管理项目所需的jar包，我们的`<modelVersion>4.0.0</modelVersion>`
 
@@ -334,7 +334,7 @@ Maven项目对象模型(POM)，可以通过一小段描述信息来管理项目�
 
 除了一些核心的jar包外，其他jar包可以根据需要添加或删除。
 
-##2.2 设置不同的profile
+## 2.2 设置不同的profile
 
 项目的开发，测试，部署到线上阶段，通常有不同的环境变量，例如数据库的host，user，password，所需请求服务的host，port以及鉴权所需的一些key，secret等。为了方便的切换，我们通常会在pom.xml文件中设置若干不同的profile
 
