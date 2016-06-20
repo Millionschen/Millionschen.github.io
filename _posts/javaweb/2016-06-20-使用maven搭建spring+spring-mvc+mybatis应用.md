@@ -24,11 +24,13 @@ mybatis是一个轻量级的持久层框架， 包括SQL Maps和Data Access Obje
 
 Maven项目对象模型(POM)，可以通过一小段描述信息来管理项目的构建，报告和文档的软件项目管理工具。
 
-# 2 搭建框架
+# 2 准备pom文件
 
 ## 2.1 引入相关jar包
 
-使用maven可以导入并管理项目所需的jar包，我们的`<modelVersion>4.0.0</modelVersion>`
+使用maven可以导入并管理项目所需的jar包，我们的`<modelVersion>4.0.0</modelVersion>`，项目结构为：
+
+![项目目录结构](http://ethanatos.qiniudn.com/maven_web%E9%A1%B9%E7%9B%AE%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84.png)
 
 先设置一些需要用到的property：
 
@@ -341,25 +343,10 @@ Maven项目对象模型(POM)，可以通过一小段描述信息来管理项目�
 ```xml
 <profiles>
 	<profile>
-		<id>local</id>
+		<id>dev</id>
 		<properties>
 			<profiles.active>local</profiles.active>
-			<log4j.level>INFO</log4j.level>
 		</properties>
-		<dependencies>
-			<!-- database -->
-			<dependency>
-				<groupId>mysql</groupId>
-				<artifactId>mysql-connector-java</artifactId>
-				<version>${mysql}</version>
-				<scope>runtime</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.alibaba</groupId>
-				<artifactId>druid</artifactId>
-				<version>${druid}</version>
-			</dependency>
-		</dependencies>
 		<build>
 			<resources>
 				<resource>
@@ -389,3 +376,163 @@ Maven项目对象模型(POM)，可以通过一小段描述信息来管理项目�
 	</profile>
 </profiles>
 ```
+
+以上我们定义了两个不同的maven profile， 在之后的配置，代码中我们可以使用不同的profile来对项目进行区分配置。filtering指是否在编译期间使用property替换resource文件中的占位符。
+
+
+## 2.3 设置build信息
+
+之后是在pom.xml文件中配置项目的build信息：
+
+```xml
+<build>
+	<finalName>${project.artifactId}</finalName>
+	  <resources>
+            <resource>
+                <directory>src/main/webapp</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>WEB-INF/web.xml</include>
+                </includes>
+                <targetPath>${project.build.directory}/${project.build.finalName}</targetPath>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>opt/${opt}/**</include>
+                    <include>config.properties</include>
+                    <include>log4j2.xml</include>
+                </includes>
+                <filtering>true</filtering>
+        </resource>
+    </resources>
+	<plugins>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>3.5.1</version>
+			<configuration>
+				<source>${jdk}</source>
+				<target>${jdk}</target>
+				<encoding>${project.build.sourceEncoding}</encoding>
+			</configuration>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-resources-plugin</artifactId>
+			<version>2.7</version>
+			<configuration>
+				<encoding>${project.build.sourceEncoding}</encoding>
+			</configuration>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-surefire-plugin</artifactId>
+			<version>2.19.1</version>
+			<configuration>
+				<skip>true</skip>
+			</configuration>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-war-plugin</artifactId>
+			<version>2.6</version>
+			<configuration>
+				<archive>
+					<manifest>
+						<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+					</manifest>
+					<manifestEntries>
+						<Implementation-Version>${project.version}</Implementation-Version>
+					</manifestEntries>
+				</archive>
+				<webXml>src/main/webapp/WEB-INF/web.xml</webXml>
+			</configuration>
+		</plugin>
+</build>
+```
+
+上面是一个javaweb项目build所需的maven plugins，可以根据需要进行调整。注意我们在resources中定义了多个resource，这几个resource的定义互相叠加，构成了最终war包里的resource，首先指定了WEB_INF/web.xml的位置，然后指定除了几个文件外的resource不需要filtering
+，最后说明几个特殊文件需要filtering。
+
+# 3 设置web.xml
+
+本文既然使用了spring-mvc，那么当然是一个jave web项目了，接下来，我们就进行项目的web.xml的配置。在配置前，我们先来温习一下有关j2ee和spring的一些基础知识：
+
+>ApplicationContext是spring的核心，Context通常解释为上下文环境，用“容器”来表述更容易理解一些，ApplicationContext则是“应用的容器了”了。ServletContext 是Servlet与Servlet容器之间直接通信的接口，Servlet容器在启动一个web应用时，会为它创建一个ServletContext对 象，每个web应用有唯一的ServletContext对象，同一个web应用的所有Servlet对象共享一个ServletContext，Servlet对象可以通过它来访问容器中的各种资源
+
+有了以上的了解，我们可以知道，将applicationContext放入ServletContext中，即可随时从其中获取applicationContext，从而获取spring中的各种bean。对于spring-mvc，我们一般将spring分为若干个“容器”，分别放入ServletContext中，如下图所示：
+
+![spring-mvc web.xml配置](http://images.cnitblog.com/blog/698747/201502/011528042224276.png)
+
+这样，整个应用的启动过程可以总结为：
+
+1. servlet容器启动，为应用创建一个“全局上下文环境”：ServletContext
+2. 容器调用web.xml中配置的contextLoaderListener，初始化WebApplicationContext上下文环境（即IOC容器），加载context-param指定的配置文件信息到IOC容器中。WebApplicationContext在ServletContext中以键值对的形式保存
+3. 容器初始化web.xml中配置的servlet，为其初始化自己的上下文信息，并加载其设置的配置信息到该上下文中。将WebApplicationContext设置为它的父容器。
+4. 此后的所有servlet的初始化都按照3步中方式创建，初始化自己的上下文环境，将WebApplicationContext设置为自己的父上下文环境。
+
+这样在启动后，在DispatcherServlet中可以引用由ContextLoaderListener所创建的父容器ApplicationContext中的内容，而反过来不行。当Spring在执行DispatcherServlet的ApplicationContext的getBean时，如果在自己context中找不到对应的bean，则会在父ApplicationContext中去找。这也解释了为什么我们可以在DispatcherServlet中获取到由ContextLoaderListener对应的ApplicationContext中的bean。这样做区分了处理http请求的逻辑与业务逻辑，整个项目更加清晰。
+
+随后，我们就来看看web.xml的配置，首先定义spring的profile，注意`profiles.active`在pom文件中不同的profile里已经定义过了。：
+
+```xml
+<context-param>
+	<param-name>spring.profiles.active</param-name>
+	<param-value>${profiles.active}</param-value>
+</context-param>
+```
+
+接下来就是定义WebApplicationContext,通过context-param contextConfigLocation指定context文件的位置，然后通过spring提供的`org.springframework.web.context.ContextLoaderListener`加载配置文件生成该web应用的IOC父容器：
+
+```xml
+<context-param>
+	<param-name>contextConfigLocation</param-name>
+	<param-value>classpath*:context/**/*.xml</param-value>
+</context-param>
+<listener>
+	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+</listener>
+```
+
+然后就是定义dispacher-servlet,注意我们使用init-param contextConfigLocation指定了其servlet-context配置文件的位置，从而生成servlet-context
+
+```xml
+<servlet>
+	<servlet-name>test</servlet-name>
+	<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+	<init-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath*:servlet/**/*.xml,
+            </param-value>
+	</init-param>
+	<load-on-startup>1</load-on-startup>
+</servlet>
+<servlet-mapping>
+	<servlet-name>test</servlet-name>
+	<url-pattern>/</url-pattern>
+</servlet-mapping>
+```
+
+最后，我们配置字符编码过滤器,来将所有请求都转换为utf-8编码：
+
+```xml
+<filter>
+	<filter-name>encodingFilter</filter-name>
+	<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+	<init-param>
+		<param-name>encoding</param-name>
+		<param-value>UTF-8</param-value>
+	</init-param>
+	<init-param>
+		<param-name>forceEncoding</param-name>
+		<param-value>true</param-value>
+	</init-param>
+</filter>
+<filter-mapping>
+	<filter-name>encodingFilter</filter-name>
+	<url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+
