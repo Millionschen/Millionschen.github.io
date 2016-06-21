@@ -452,8 +452,7 @@ Maven项目对象模型(POM)，可以通过一小段描述信息来管理项目�
 </build>
 ```
 
-上面是一个javaweb项目build所需的maven plugins，可以根据需要进行调整。注意我们在resources中定义了多个resource，这几个resource的定义互相叠加，构成了最终war包里的resource，首先指定了WEB_INF/web.xml的位置，然后指定除了几个文件外的resource不需要filtering
-，最后说明几个特殊文件需要filtering。
+上面是一个javaweb项目build所需的maven plugins，可以根据需要进行调整。注意我们在resources中定义了多个resource，这几个resource的定义互相叠加，构成了最终war包里的resource，首先指定了WEB_INF/web.xml的位置，然后指定除了几个文件外的resource不需要filtering，最后说明几个特殊文件需要filtering,注意resource插件可以对配置文件进行filter，但是它默认把resource放入WEB-INF/class下，所以需要指定他将WEB.xml放置到WEB-INF下。
 
 # 3 设置web.xml
 
@@ -535,4 +534,196 @@ Maven项目对象模型(POM)，可以通过一小段描述信息来管理项目�
 </filter-mapping>
 ```
 
+# 4. 配置context
+
+## 4.1 servlet-context的配置
+
+在servelet-context中，我们一般配置对controller包的component-scan，打开annotation-driven，以及对http的request和response的格式转换。
+
+* component-scan 这里如我们之前所述，只scan controller
+	
+```xml
+<context:component-scan base-package="your.app.controller"/>
+```
+
+* annotation-driven 以及 request和response的格式转换，如把object转换为json，xml等等。这里我们配置了fastJson作为json转换，marshallingConverter作为xml转换 以及org.springframework.http.converter.StringHttpMessageConverter作为string转换
+
+```xml
+<mvc:annotation-driven>
+    <mvc:message-converters>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <constructor-arg value="UTF-8"/>
+            </bean>
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="features">
+                    <array value-type="com.alibaba.fastjson.serializer.SerializerFeature">
+                        <value>NotWriteDefaultValue</value>
+                        <value>DisableCircularReferenceDetect</value>
+                    </array>
+                </property>
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                        <value>text/html;charset=UTF-8</value>
+                        <value>text/plain;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+             <bean id="marshallingConverter"
+          class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">
+        <constructor-arg ref="jaxbMarshaller"/>
+        <property name="supportedMediaTypes" value="application/xml;charset=UTF-8"/>
+    			</bean>
+    </mvc:message-converters>
+</mvc:annotation-driven>
+<bean class="org.springframework.oxm.jaxb.Jaxb2Marshaller" id="jaxbMarshaller">
+    <property name="classesToBeBound">
+        <list>
+            <value>com.ins.life.order.dto.Message</value>
+        </list>
+    </property>
+    <property name="marshallerProperties">
+        <map>
+            <entry key="jaxb.encoding" value="UTF-8"/>
+            <entry key="jaxb.formatted.output">
+                <bean class="java.lang.Boolean">
+                    <constructor-arg value="true"/>
+                </bean>
+            </entry>
+        </map>
+    </property>
+</bean>
+```
+
+* 注册multipartResolver(解析上传文件)，localResolver(用户i18n)，viewResolver(解析视图)
+
+## 4.2 配置Application-context
+
+application-contex是整个web应用的业务、功能组件的配置文件，可以根据需要进行拆分，放入不同的配置文件中。
+
+### 4.2.1 配置mybatis
+
+首先我们配置mybatis，在配置mybatis前，需要先配置一个dataSource,通常我们将dataSource所需的参数放入配置文件中，使用propertySourcePlaceHolder加载
+
+```xml
+<!-- 数据库、保险公司参数等配置文件位置 -->
+<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+    <property name="order" value="1"/>
+    <property name="ignoreUnresolvablePlaceholders" value="true"/>
+    <property name="locations">
+        <list>
+            <value>classpath:dbconfig.properties</value>
+        </list>
+    </property>
+</bean>
+```
+
+之后，配置dataSource,这里我们使用阿里巴巴的druid，不同dataSource的配置需要参考各自的配置文件
+
+```xml
+<bean class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close" id="dataSource" init-method="init">
+    <!-- 数据库基本信息配置 -->
+    <property name="driverClassName" value="${driverClassName}"/>
+    <property name="url" value="${jdbcUrl}"/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
+    <!-- 初始化连接数量 -->
+    <property name="initialSize" value="${initialSize}"/>
+    <!-- 最大并发连接数 -->
+    <property name="maxActive" value="${maxActive}"/>
+    <!-- 最大空闲连接数
+            <property name="maxIdle" value="${maxIdle}"/>-->
+    <!-- 最小空闲连接数 -->
+    <property name="minIdle" value="${minIdle}"/>
+    <!-- 配置获取连接等待超时的时间 -->
+    <property name="maxWait" value="${maxWait}"/>
+    <!-- 超过时间限制是否回收 -->
+    <property name="removeAbandoned" value="${removeAbandoned}"/>
+    <!-- 超过时间限制多长； -->
+    <property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}"/>
+    <!-- 关闭abanded连接时输出错误日志 -->
+    <property name="logAbandoned" value="${logAbandoned}"/>
+    <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+    <property name="timeBetweenEvictionRunsMillis" value="${timeBetweenEvictionRunsMillis}"/>
+    <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+    <property name="minEvictableIdleTimeMillis" value="${minEvictableIdleTimeMillis}"/>
+    <!-- 用来检测连接是否有效的sql，要求是一个查询语句-->
+    <property name="validationQuery" value="${validationQuery}"/>
+    <!-- 申请连接的时候检测 -->
+    <property name="testWhileIdle" value="${testWhileIdle}"/>
+    <!-- 申请连接时执行validationQuery检测连接是否有效，配置为true会降低性能 -->
+    <property name="testOnBorrow" value="${testOnBorrow}"/>
+    <!-- 归还连接时执行validationQuery检测连接是否有效，配置为true会降低性能  -->
+    <property name="testOnReturn" value="${testOnReturn}"/>
+    <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+    <property name="poolPreparedStatements" value="${poolPreparedStatements}"/>
+    <property name="maxPoolPreparedStatementPerConnectionSize" value="${maxPoolPreparedStatementPerConnectionSize}"/>
+    <!--属性类型是字符串，通过别名的方式配置扩展插件，常用的插件有：
+                    监控统计用的filter:stat
+                    日志用的filter:log4j
+                   防御SQL注入的filter:wall -->
+    <property name="filters" value="${filters}"/>
+</bean>
+```
+
+然后，配置事务管理,如果需要通过注解控制事务，加入tx:annotation-driven：
+
+```xml
+<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="txManager">
+    <property name="dataSource" ref="dataSource"/>
+</bean>
+<!-- enable transaction annotation support -->
+<tx:annotation-driven transaction-manager="txManager" />
+```
+
+配置好dataSource与transactionManager后，就可以来进行mybatis的配置了，首先配置sqlSessionFactory，使用之前配置的dataSource.设置了typeAliasesPackage以后，在mapper中使用model时就可以不用加上完全限定类名了
+
+```xml
+<bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory">
+    <!-- 实例化sqlSessionFactory时需要使用上述配置好的数据源以及SQL映射文件 -->
+    <property name="dataSource" ref="dataSource"/>
+    <property name="configLocation" value="classpath:mybatis-config.xml"/>
+    <!-- 自动配置别名 -->
+    <property name="typeAliasesPackage" value="your.model.package"/>
+    <property name="mapperLocations">
+        <array>
+            <value>classpath*:mapper/**/*.xml</value>
+        </array>
+    </property>
+</bean>
+```
+
+生成一个mybatis的配置文件`mybatis-config.xml`,相关个性化配置可以查看mybatis的文档
+
+```xml
+<configuration>
+	<settings>
+       <setting name="lazyLoadingEnabled" value="false"/>
+		<setting name="cacheEnabled" value="false"/>
+	</settings>
+</configuration>
+```
+
+配置一个mapper MapperScannerConfigurer，扫描mapper所在的位置
+
+```xml
+<!-- 配置扫描器 -->
+<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    <!-- 扫描your.package.to.mapper这个包以及它的子包下的所有映射接口类 -->
+    <property name="basePackage" value="your.package.to.mapper"/>
+    <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+</bean>
+```
+
+### 4.2.2 其他bean的配置
+
+配置其他业务逻辑和工具bean，以及component-scan,可以通过` <context:exclude-filter type="annotation"
+        expression="org.springframework.stereotype.Controller"/>`进行scan的配置:
+
+```xml
+<context:component-scan base-package="package1;packge2"/>
+```
+
+# 5 总结
+至此，一个基本的spring+spring-mvc+mybatis配置就搭建好了，接下来就能进行愉快的开发了。
 
