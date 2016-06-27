@@ -3,7 +3,7 @@ layout: post
 title: 我的第一篇blog
 category: 生活
 tags: Essay
-keywords: Zipcar,Rent,Car
+keywords: essay
 ---
 
 ## 简介
